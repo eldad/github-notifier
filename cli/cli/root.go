@@ -40,7 +40,7 @@ func Execute() {
 func init() {
 	cobra.OnInitialize(findDefaultConfig)
 	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.config/github-notifier/config.json)")
-	rootCmd.PersistentFlags().IntVar(&logLevel, "log-level", int(slog.LevelDebug), "log level like defined in https://pkg.go.dev/log/slog#Level")
+	rootCmd.PersistentFlags().IntVar(&logLevel, "log-level", int(slog.LevelInfo), "log level like defined in https://pkg.go.dev/log/slog#Level")
 	rootCmd.PersistentFlags().Bool("init", false, "Will re-initialize the config file")
 }
 
