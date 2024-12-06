@@ -14,6 +14,8 @@ var runCommand = &cobra.Command{
 		err := viper.ReadInConfig()
 		cobra.CheckErr(err)
 
+		features.UseNotifySend = UseNotifySend
+
 		features.RunNotifications(
 			viper.GetString("org"),
 			viper.GetString("team"),

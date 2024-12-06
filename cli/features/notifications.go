@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log/slog"
 	"os"
+	"os/exec"
 	"strings"
 	"time"
 
@@ -11,6 +12,8 @@ import (
 	"github.com/wassimbenzarti/github-notifier/github"
 	"github.com/wassimbenzarti/github-notifier/terminal"
 )
+
+var UseNotifySend = false
 
 type QueryRequestBody struct {
 	Query string `json:"query"`
@@ -22,6 +25,26 @@ type PullRequest struct {
 	}
 	Title string `json:"title"`
 	Url   string `json:"url"`
+}
+
+func notifySend(summary string, body string, url string) {
+	if !UseNotifySend {
+		return
+	}
+
+	cmd := exec.Command("notify-send", "-i", "assets/notification.png", summary, body, "-A", "OPEN-URL=Open URL")
+	b, err := cmd.Output()
+	if err != nil {
+		// ignore notify-send errors
+		slog.Debug("notify-send error: %w", err)
+		return
+	}
+
+	if strings.TrimSpace(string(b)) == "OPEN-URL" {
+		// xdg-open url
+		cmd := exec.Command("xdg-open", url)
+		cmd.Run()
+	}
 }
 
 func RunNotifications(organization string, team string, author string, teamMembers []string) {
@@ -60,6 +83,7 @@ func RunNotifications(organization string, team string, author string, teamMembe
 			messages = append(messages, fmt.Sprintf("You have %d new PR(s) to review", len(*pullRequests)))
 			for _, pullRequest := range *pullRequests {
 				terminal.ColorfulPrintf(terminal.LightBlue, "REVIEW: %s\t%s\t%s\n", pullRequest.Author.Login, pullRequest.Title, pullRequest.Url)
+				notifySend(fmt.Sprintf("PR @%s", pullRequest.Author.Login), pullRequest.Title, pullRequest.Url)
 			}
 		} else {
 			slog.Debug("No new notifications")
@@ -75,16 +99,23 @@ func RunNotifications(organization string, team string, author string, teamMembe
 			for _, pr := range *myPullrequests {
 
 				terminal.ColorfulPrintf(terminal.Green, "PR title: %s\t%s\n", pr.PullRequest.Title, pr.PullRequest.Url)
+				details := ""
 				for _, review := range pr.Reviews {
+					details += fmt.Sprintf("Review by @%s\n", review.Author.Login)
 					terminal.ColorfulPrintf(terminal.Green, "\tReview by: %s\n", review.Author.Login)
 				}
 				for _, check := range pr.Checks {
+					details += fmt.Sprintf("Completed check %s\n", check.Name)
 					terminal.ColorfulPrintf(terminal.Green, "\tCompleted check: %s\n", check.Name)
 				}
+
+				notifySend(fmt.Sprintf("PR Activity for %s", pr.PullRequest.Title), details, pr.PullRequest.Url)
 			}
 		}
 		if len(messages) > 0 {
-			beeep.Alert("GH Notifier", strings.Join(messages, "\n"), "assets/notification.png")
+			if !UseNotifySend {
+				beeep.Alert("GH Notifier", strings.Join(messages, "\n"), "assets/notification.png")
+			}
 		}
 	}
 
