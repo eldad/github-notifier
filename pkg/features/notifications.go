@@ -8,8 +8,8 @@ import (
 	"time"
 
 	"github.com/gen2brain/beeep"
-	"github.com/wassimbenzarti/github-notifier/github"
-	"github.com/wassimbenzarti/github-notifier/terminal"
+	"github.com/wassimbenzarti/github-notifier/pkg/github"
+	"github.com/wassimbenzarti/github-notifier/pkg/terminal"
 )
 
 type QueryRequestBody struct {
