@@ -52,7 +52,9 @@ func RunNotifications(organization string, team string, author string, teamMembe
 			createdAt,
 		)
 		if err != nil {
-			panic(err)
+			slog.Debug("Failed to fetch Pull Requests because of an error. Retrying in 5 mins...", "Error", err)
+			time.Sleep(300 * time.Second)
+			continue
 		}
 
 		var messages []string
@@ -67,7 +69,9 @@ func RunNotifications(organization string, team string, author string, teamMembe
 
 		myPullrequests, err := githubClient.GetNewReviewsOrNewChecks("@me", createdAt)
 		if err != nil {
-			panic(err)
+			slog.Debug("Failed to fetch Pull Requests because of an error. Retrying in 5 mins...", "Error", err)
+			time.Sleep(300 * time.Second)
+			continue
 		}
 
 		if len(*myPullrequests) > 0 {
