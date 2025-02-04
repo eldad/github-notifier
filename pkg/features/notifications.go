@@ -52,7 +52,7 @@ func RunNotifications(organization string, team string, author string, teamMembe
 			createdAt,
 		)
 		if err != nil {
-			slog.Debug("Failed to fetch Pull Requests because of an error. Retrying in 5 mins...", "Error", err)
+			slog.Warn("Failed to fetch Pull Requests because of an error. Retrying in 1 mins...", "Error", err)
 			time.Sleep(60 * time.Second)
 			continue
 		}
