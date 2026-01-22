@@ -35,7 +35,7 @@ func notifySend(summary string, body string, url string) {
 	}
 
 	go func() {
-		cmd := exec.Command("notify-send", "-i", assets.NotificationIconFilePath, summary, body, "-A", "OPEN-URL=Open URL")
+		cmd := exec.Command("notify-send", "-t", "1000000000", "-i", assets.NotificationIconFilePath, summary, body, "-A", "OPEN-URL=Open URL")
 		b, err := cmd.Output()
 		if err != nil {
 			slog.Debug("failed to call notify-send", "err", err.Error())
